@@ -1,4 +1,4 @@
-name: CS Launcher V3 CI
+name: Leo V1
 
 on:
   workflow_dispatch:
@@ -78,9 +78,9 @@ jobs:
             echo "Keystore decoded successfully."
           else
             echo "KEYSTORE_PATH=${{ github.workspace }}/app_pojavlauncher/release.keystore" >> $GITHUB_ENV
-            echo "KEY_ALIAS=cslauncher" >> $GITHUB_ENV
-            echo "KEY_PASSWORD=cslauncher2026" >> $GITHUB_ENV
-            echo "STORE_PASSWORD=cslauncher2026" >> $GITHUB_ENV
+            echo "KEY_ALIAS=leov1" >> $GITHUB_ENV
+            echo "KEY_PASSWORD=leov1" >> $GITHUB_ENV
+            echo "STORE_PASSWORD=leov1" >> $GITHUB_ENV
             echo "Using default 2048-bit RSA release keystore for automatic signing"
           fi
 
@@ -92,7 +92,7 @@ jobs:
           mkdir -p out
 
       # ── Release APK (ONE AND ONLY BUILD — signed, shrunk) ────────────────────
-      # Single clean artifact: CS-LAUNCHER-V3.apk
+      # Single clean artifact: LEO-V1.apk
       # No DEBUG build, no NO-RUNTIME build, no run-number / timestamp clutter.
       - name: Build Release APK
         run: |
@@ -110,9 +110,9 @@ jobs:
 
           RELEASE_APK=$(find app_pojavlauncher/build/outputs/apk/release -name "*.apk" ! -name "*unsigned*" | head -n 1)
           if [ -n "$RELEASE_APK" ]; then
-            cp "$RELEASE_APK" out/CS-LAUNCHER-V3.apk
-            md5sum    out/CS-LAUNCHER-V3.apk > out/CS-LAUNCHER-V3.md5
-            sha256sum out/CS-LAUNCHER-V3.apk > out/CS-LAUNCHER-V3.sha256
+            cp "$RELEASE_APK" out/LEO-V1.apk
+            md5sum    out/LEO-V1.apk > out/LEO-V1.md5
+            sha256sum out/LEO-V1.apk > out/LEO-V1.sha256
           else
             echo "ERROR: Signed Release APK not found" && exit 1
           fi
@@ -120,18 +120,18 @@ jobs:
       # ── Verify APK Signature ─────────────────────────────────────────────────
       - name: Verify Signed APK
         run: |
-          ls -lh out/CS-LAUNCHER-V3.apk
+          ls -lh out/LEO-V1.apk
           echo "Verifying APK signature..."
-          jarsigner -verify -verbose -certs out/CS-LAUNCHER-V3.apk | head -n 25 || true
+          jarsigner -verify -verbose -certs out/LEO-V1.apk | head -n 25 || true
 
       # ── APK size report ──────────────────────────────────────────────────────
       - name: APK size report
         run: |
-          SIZE=$(du -sh out/CS-LAUNCHER-V3.apk | cut -f1)
+          SIZE=$(du -sh out/LEO-V1.apk | cut -f1)
           echo "## APK Size" >> $GITHUB_STEP_SUMMARY
           echo "| File | Size |" >> $GITHUB_STEP_SUMMARY
           echo "|------|------|" >> $GITHUB_STEP_SUMMARY
-          echo "| CS-LAUNCHER-V3.apk | $SIZE |" >> $GITHUB_STEP_SUMMARY
+          echo "| LEO-V1.apk | $SIZE |" >> $GITHUB_STEP_SUMMARY
 
       # ── Upload artifact ──────────────────────────────────────────────────────
       # Clean static name — no run-number / timestamp suffixes.
@@ -139,28 +139,28 @@ jobs:
         uses: actions/upload-artifact@v4
         continue-on-error: true
         with:
-          name: CS-LAUNCHER-V3
+          name: LEO-V1
           path: |
-            out/CS-LAUNCHER-V3.apk
-            out/CS-LAUNCHER-V3.md5
-            out/CS-LAUNCHER-V3.sha256
+            out/LEO-V1.apk
+            out/LEO-V1.md5
+            out/LEO-V1.sha256
           retention-days: 2
 
       # ── GitHub Release (single rolling release, always the latest APK) ───────
-      # One fixed tag "v3" + allowUpdates → the release updates in place on
+      # One fixed tag "v1" + allowUpdates → the release updates in place on
       # every main push instead of piling up "Build #N" releases with notes.
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         if: github.event_name == 'workflow_dispatch'
         with:
-          artifacts: "out/CS-LAUNCHER-V3.apk,out/CS-LAUNCHER-V3.md5,out/CS-LAUNCHER-V3.sha256"
+          artifacts: "out/LEO-V1.apk,out/LEO-V1.md5,out/LEO-V1.sha256"
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: "v3"
-          name: "CS Launcher V3"
+          tag: "v1"
+          name: "LEO V1"
           body: |
-            ## CS Launcher V3
+            ## LEO V1
 
-            **Download:** `CS-LAUNCHER-V3.apk` — signed release build with bundled JRE 8.
+            **Download:** `LEO-V1.apk` — signed release build with bundled JRE 8.
 
             > Verify integrity with the `.md5` / `.sha256` checksum files.
           allowUpdates: true
